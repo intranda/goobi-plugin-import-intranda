@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -293,9 +294,10 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 	public String getProcessTitle() {
 		String answer = "";
 		if (StringUtils.isNotBlank(this.ats)) {
-			answer = ats.toLowerCase() + "_" + this.currentIdentifier + volumeNumber;
+			answer = ats.toLowerCase() + "_" + this.currentIdentifier;
+		} else {
+			answer = this.currentIdentifier;
 		}
-		answer = this.currentIdentifier;
 		if (StringUtils.isNotBlank(volumeNumber)) {
 			answer = answer + "_" + volumeNumber;
 		}
@@ -352,6 +354,35 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 	}
 
 	private void moveImages() throws ImportPluginException {
+		// OLD
+//		String basedir = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/import/");
+//		File folder = new File(basedir, imagefolder);
+//		if (folder.exists() && folder.isDirectory()) {
+//			File destinationRoot = new File(importFolder, getProcessTitle());
+//			if (!destinationRoot.exists()) {
+//				destinationRoot.mkdir();
+//			}
+//			File destinationImages = new File(destinationRoot, "images");
+//			if (!destinationImages.exists()) {
+//				destinationImages.mkdir();
+//			}
+//			File destinationTif = new File(destinationImages, getProcessTitle() + "_tif");
+//			if (!destinationTif.exists()) {
+//				destinationTif.mkdir();
+//			}
+//			try {
+//				for (File file : folder.listFiles()) {
+//					FileUtils.copyFile(file, new File(destinationTif, file.getName()));
+//				}
+//				// FileUtils.copyDirectory(folder, destinationTif);
+//			} catch (IOException e) {
+//				logger.error(this.currentIdentifier + ": " + e.getMessage(), e);
+//				throw new ImportPluginException(e);
+//			}
+//		}
+		
+		
+		// NEW
 		String basedir = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/import/");
 		File folder = new File(basedir, imagefolder);
 		if (folder.exists() && folder.isDirectory()) {
@@ -359,27 +390,16 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 			if (!destinationRoot.exists()) {
 				destinationRoot.mkdir();
 			}
-			File destinationImages = new File(destinationRoot, "images");
-			if (!destinationImages.exists()) {
-				destinationImages.mkdir();
-			}
-			File destinationTif = new File(destinationImages, getProcessTitle() + "_tif");
-			if (!destinationTif.exists()) {
-				destinationTif.mkdir();
-			}
-
 			try {
 				for (File file : folder.listFiles()) {
-					FileUtils.copyFile(file, new File(destinationTif, file.getName()));
+					FileUtils.copyDirectory(file, new File(destinationRoot, file.getName()));
 				}
 				// FileUtils.copyDirectory(folder, destinationTif);
 			} catch (IOException e) {
 				logger.error(this.currentIdentifier + ": " + e.getMessage(), e);
 				throw new ImportPluginException(e);
 			}
-
 		}
-
 	}
 
 	@Override
@@ -424,6 +444,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 		List<Record> records = new ArrayList<Record>();
 		for (String filename : filenames) {
 			File f = new File(folder, filename);
+			imagefolder = filename.replace(".xml", "");
 			try {
 				Document doc = new SAXBuilder().build(f);
 				if (doc != null && doc.getRootElement() != null) {
@@ -467,11 +488,45 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
 	@Override
 	public List<String> getAllFilenames() {
-		return new ArrayList<String>();
+		List<String> answer = new ArrayList<String>();
+		String folder = ConfigPlugins.getPluginConfig(this).getString("importFolder", "/opt/digiverso/goobi/import/");
+		File f = new File(folder);
+		if (f.exists() && f.isDirectory()) {
+			String[] files = f.list(xml);
+			for (String file : files) {
+				answer.add(file);
+			}
+			Collections.sort(answer);
+		}
+		return answer;
+
 	}
 
 	@Override
 	public void deleteFiles(List<String> selectedFilenames) {
+		// String folder = ConfigPlugins.getPluginConfig(this).getString("importFolder", "/opt/digiverso/goobi/import/");
+		// for (String filename : selectedFilenames) {
+		// // removing mets file
+		// File f = new File(folder, filename);
+		// FileUtils.deleteQuietly(f);
+		//
+		// // removing anchor file
+		// File anchor = new File(folder, filename.replace(".xml", "_anchor.xml"));
+		// if (anchor.exists()) {
+		// FileUtils.deleteQuietly(f);
+		// }
+		//
+		// // renaming images folder
+		// File image = new File(folder, imagefolder);
+		// if (image.exists()) {
+		// try {
+		// FileUtils.deleteDirectory(image);
+		// } catch (IOException e) {
+		//
+		// }
+		// }
+		//
+		// }
 	}
 
 	@Override
@@ -503,10 +558,17 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 	public void setDocstruct(DocstructElement dse) {
 	}
 
-	private static FilenameFilter images = new FilenameFilter() {
+	// private static FilenameFilter images = new FilenameFilter() {
+	// @Override
+	// public boolean accept(File folder, String name) {
+	// return name.endsWith("tif");
+	// }
+	// };
+
+	private static FilenameFilter xml = new FilenameFilter() {
 		@Override
 		public boolean accept(File folder, String name) {
-			return name.endsWith("tif");
+			return name.endsWith(".xml") && !name.contains("_anchor");
 		}
 	};
 
