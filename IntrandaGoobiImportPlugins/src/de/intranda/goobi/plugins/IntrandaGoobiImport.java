@@ -55,7 +55,9 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
 	private static final Logger logger = Logger.getLogger(IntrandaGoobiImport.class);
 
-	private static final String NAME = "IntrandaGoobiImport";
+	private static final String NAME = "intranda Goobi Import";
+	private static final String ID = "goobiImport";
+
 	private String data = "";
 	private String importFolder = "";
 	private File importFile;
