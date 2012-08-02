@@ -441,7 +441,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
 	@Override
 	public List<Record> generateRecordsFromFilenames(List<String> filenames) {
-		String folder = ConfigPlugins.getPluginConfig(this).getString("importFolder", "/opt/digiverso/goobi/import/");
+		String folder = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/goobi/import/");
 		List<Record> records = new ArrayList<Record>();
 		for (String filename : filenames) {
 			File f = new File(folder, filename);
@@ -490,7 +490,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 	@Override
 	public List<String> getAllFilenames() {
 		List<String> answer = new ArrayList<String>();
-		String folder = ConfigPlugins.getPluginConfig(this).getString("importFolder", "/opt/digiverso/goobi/import/");
+		String folder = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/goobi/import/");
 		File f = new File(folder);
 		if (f.exists() && f.isDirectory()) {
 			String[] files = f.list(xml);
@@ -505,7 +505,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
 	@Override
 	public void deleteFiles(List<String> selectedFilenames) {
-		String folder = ConfigPlugins.getPluginConfig(this).getString("importFolder", "/opt/digiverso/goobi/import/");
+		String folder = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/goobi/import/");
 		for (String filename : selectedFilenames) {
 			// removing mets file
 			File f = new File(folder, filename);
