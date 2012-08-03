@@ -77,7 +77,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
 	@Override
 	public String getId() {
-		return NAME;
+		return ID;
 	}
 
 	@Override
