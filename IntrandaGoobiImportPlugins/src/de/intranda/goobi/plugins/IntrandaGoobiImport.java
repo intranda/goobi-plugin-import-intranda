@@ -50,30 +50,30 @@ import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.UghHelper;
 import de.sub.goobi.helper.exceptions.ImportPluginException;
 
-@PluginImplementation
+
 public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
-	private static final Logger logger = Logger.getLogger(IntrandaGoobiImport.class);
+	protected static final Logger logger = Logger.getLogger(IntrandaGoobiImport.class);
 
 	private static final String NAME = "intranda Goobi Import";
 	private static final String ID = "goobiImport";
 
-	private String data = "";
-	private String importFolder = "";
-	private File importFile;
-	private Prefs prefs;
-	private String currentIdentifier;
-	private List<String> currentCollectionList;
-	private String imagefolder;
-	private String ats;
-	private List<Prozesseigenschaft> processProperties = new ArrayList<Prozesseigenschaft>();
-	private List<Werkstueckeigenschaft> workProperties = new ArrayList<Werkstueckeigenschaft>();
-	private List<Vorlageeigenschaft> templateProperties = new ArrayList<Vorlageeigenschaft>();
+	protected String data = "";
+	protected String importFolder = "";
+	protected File importFile;
+	protected Prefs prefs;
+	protected String currentIdentifier;
+	protected List<String> currentCollectionList;
+	protected String imagefolder;
+	protected String ats;
+	protected List<Prozesseigenschaft> processProperties = new ArrayList<Prozesseigenschaft>();
+	protected List<Werkstueckeigenschaft> workProperties = new ArrayList<Werkstueckeigenschaft>();
+	protected List<Vorlageeigenschaft> templateProperties = new ArrayList<Vorlageeigenschaft>();
 
-	private String currentTitle;
-	private String docType;
-	private String author = "";
-	private String volumeNumber = "";
+	protected String currentTitle;
+	protected String docType;
+	protected String author = "";
+	protected String volumeNumber = "";
 
 	@Override
 	public String getId() {
@@ -165,6 +165,15 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 					if (mdList != null && mdList.size() > 0) {
 						Metadata md = mdList.get(0);
 						volumeNumber = md.getValue();
+					}
+					// hamburg fix
+					if (volumeNumber == null || volumeNumber.length() == 0) {
+						mdt = prefs.getMetadataTypeByName("DateIssuedSort");
+						mdList = child.getAllMetadataByType(mdt);
+						if (mdList != null && mdList.size() > 0) {
+							Metadata md = mdList.get(0);
+							volumeNumber = md.getValue();
+						}
 					}
 				}
 
@@ -355,7 +364,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 		return answer;
 	}
 
-	private void moveImages() throws ImportPluginException {
+	public void moveImages() throws ImportPluginException {
 		// OLD
 		// String basedir = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/import/");
 		// File folder = new File(basedir, imagefolder);
