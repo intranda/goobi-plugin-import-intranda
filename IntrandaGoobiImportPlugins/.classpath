@@ -34,7 +34,6 @@
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/EasySI-0.9.0.jar"/>
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/ehcache-1.1.jar"/>
-	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/fontbox-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/fop-0.9.5.jar"/>
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/goobi-api.jar"/>
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/help.jar"/>
@@ -74,7 +73,6 @@
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/myfaces-impl-1.1.5.jar"/>
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/mysql-connector-java-5.1.6.jar"/>
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/oscache-2.3.2.jar"/>
-	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/pdfbox-1.4.0.jar"/>
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/poi-3.6-20091214.jar"/>
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/poi-contrib-3.6-20091214.jar"/>
 	<classpathentry kind="lib" path="/Goobi1.9/WEB-INF/lib/poi-ooxml-3.6-20091214.jar"/>

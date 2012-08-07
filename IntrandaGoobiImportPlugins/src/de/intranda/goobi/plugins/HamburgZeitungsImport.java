@@ -29,8 +29,8 @@ public class HamburgZeitungsImport extends IntrandaGoobiImport implements IImpor
 		super();
 	}
 
-	private static final String NAME = "Hamburger Zeitungs-Import";
-	private static final String ID = "hamburgImport";
+	private static final String NAME = "HamburgerZeitungsImport";
+	private static final String ID = "HamburgerZeitungsImport";
 
 	@Override
 	public String getId() {

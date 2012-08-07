@@ -17,7 +17,7 @@
 
 	<target name="jar">
 		<echo>compile sources</echo>
-		<javac destdir="bin" includeantruntime="false">
+		<javac destdir="bin" includeantruntime="false" target="1.5">
 			<src path="src" />
 		</javac>
 		<echo>generate jar file</echo>

@@ -50,13 +50,13 @@ import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.UghHelper;
 import de.sub.goobi.helper.exceptions.ImportPluginException;
 
-
+@PluginImplementation
 public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
 	protected static final Logger logger = Logger.getLogger(IntrandaGoobiImport.class);
 
-	private static final String NAME = "intranda Goobi Import";
-	private static final String ID = "goobiImport";
+	private static final String NAME = "intrandaGoobiImport";
+	private static final String ID = "intrandaGoobiImport";
 
 	protected String data = "";
 	protected String importFolder = "";
@@ -165,9 +165,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 					if (mdList != null && mdList.size() > 0) {
 						Metadata md = mdList.get(0);
 						volumeNumber = md.getValue();
-					}
-					// hamburg fix
-					if (volumeNumber == null || volumeNumber.length() == 0) {
+					} else {
 						mdt = prefs.getMetadataTypeByName("DateIssuedSort");
 						mdList = child.getAllMetadataByType(mdt);
 						if (mdList != null && mdList.size() > 0) {
