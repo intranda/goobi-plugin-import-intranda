@@ -85,6 +85,7 @@ public class HamburgZeitungsImport extends IntrandaGoobiImport implements IImpor
 				if (doc != null && doc.getRootElement() != null) {
 					Record record = new Record();
 					record.setData(meta.getAbsolutePath());
+					record.setId(imagefolder);
 					records.add(record);
 				} else {
 					logger.error("Could not parse '" + meta.getAbsolutePath() + "'.");

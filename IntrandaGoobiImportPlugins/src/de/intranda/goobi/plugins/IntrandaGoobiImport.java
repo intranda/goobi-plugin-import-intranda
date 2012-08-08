@@ -320,6 +320,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 		for (Record r : records) {
 			this.data = r.getData();
 			this.currentCollectionList = r.getCollections();
+			this.imagefolder = r.getId();
 			ImportObject io = new ImportObject();
 			Fileformat ff = null;
 			try {
@@ -337,6 +338,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 					logger.debug("Writing '" + fileName + "' into given folder...");
 					mm.write(fileName);
 					io.setMetsFilename(fileName);
+					
 					moveImages();
 					io.setImportReturnValue(ImportReturnValue.ExportFinished);
 
