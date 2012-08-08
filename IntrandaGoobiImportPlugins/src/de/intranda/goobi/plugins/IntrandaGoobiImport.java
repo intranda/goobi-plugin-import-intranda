@@ -318,6 +318,9 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 		List<ImportObject> answer = new ArrayList<ImportObject>();
 
 		for (Record r : records) {
+			processProperties = new ArrayList<Prozesseigenschaft>();
+			workProperties = new ArrayList<Werkstueckeigenschaft>();
+			templateProperties = new ArrayList<Vorlageeigenschaft>();
 			this.data = r.getData();
 			this.currentCollectionList = r.getCollections();
 			this.imagefolder = r.getId();
