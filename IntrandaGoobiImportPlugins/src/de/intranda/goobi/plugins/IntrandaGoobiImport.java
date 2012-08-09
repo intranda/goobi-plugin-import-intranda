@@ -233,13 +233,13 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 					prop.setWert(author);
 					workProperties.add(prop);
 				}
-				{
-					docType = logicalDS.getType().getName();
-					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
-					prop.setTitel("DocType");
-					prop.setWert(docType);
-					workProperties.add(prop);
-				}
+//				{
+//					docType = logicalDS.getType().getName();
+//					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
+//					prop.setTitel("DocType");
+//					prop.setWert(docType);
+//					workProperties.add(prop);
+//				}
 				{
 					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
 					prop.setTitel("ATS");
@@ -253,20 +253,20 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 					workProperties.add(prop);
 				}
 
-				{
-					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
-					prop.setTitel("TifHeaderDocumentname");
-					prop.setWert(getProcessTitle());
-					workProperties.add(prop);
-				}
-				{
-					String description = "|<DOC_TYPE>" + docType + "|<title>" + currentTitle + "|<author>" + author + "|<STRCT>" + getProcessTitle()
-							+ "|";
-					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
-					prop.setTitel("TifHeaderImagedescription");
-					prop.setWert(description);
-					workProperties.add(prop);
-				}
+//				{
+//					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
+//					prop.setTitel("TifHeaderDocumentname");
+//					prop.setWert(getProcessTitle());
+//					workProperties.add(prop);
+//				}
+//				{
+//					String description = "|<DOC_TYPE>" + docType + "|<title>" + currentTitle + "|<author>" + author + "|<STRCT>" + getProcessTitle()
+//							+ "|";
+//					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
+//					prop.setTitel("TifHeaderImagedescription");
+//					prop.setWert(description);
+//					workProperties.add(prop);
+//				}
 
 				// Add collection names attached to the current record
 				if (this.currentCollectionList != null) {
