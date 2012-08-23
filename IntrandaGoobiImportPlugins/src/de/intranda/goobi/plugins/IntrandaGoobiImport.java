@@ -55,8 +55,8 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
 	protected static final Logger logger = Logger.getLogger(IntrandaGoobiImport.class);
 
-	private static final String NAME = "intrandaGoobiImport";
-	private static final String ID = "intrandaGoobiImport";
+	private static final String NAME = "goobiImport";
+	private static final String ID = "goobiImport";
 
 	protected String data = "";
 	protected String importFolder = "";
@@ -233,13 +233,13 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 					prop.setWert(author);
 					workProperties.add(prop);
 				}
-//				{
-//					docType = logicalDS.getType().getName();
-//					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
-//					prop.setTitel("DocType");
-//					prop.setWert(docType);
-//					workProperties.add(prop);
-//				}
+				// {
+				// docType = logicalDS.getType().getName();
+				// Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
+				// prop.setTitel("DocType");
+				// prop.setWert(docType);
+				// workProperties.add(prop);
+				// }
 				{
 					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
 					prop.setTitel("ATS");
@@ -253,20 +253,20 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 					workProperties.add(prop);
 				}
 
-//				{
-//					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
-//					prop.setTitel("TifHeaderDocumentname");
-//					prop.setWert(getProcessTitle());
-//					workProperties.add(prop);
-//				}
-//				{
-//					String description = "|<DOC_TYPE>" + docType + "|<title>" + currentTitle + "|<author>" + author + "|<STRCT>" + getProcessTitle()
-//							+ "|";
-//					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
-//					prop.setTitel("TifHeaderImagedescription");
-//					prop.setWert(description);
-//					workProperties.add(prop);
-//				}
+				// {
+				// Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
+				// prop.setTitel("TifHeaderDocumentname");
+				// prop.setWert(getProcessTitle());
+				// workProperties.add(prop);
+				// }
+				// {
+				// String description = "|<DOC_TYPE>" + docType + "|<title>" + currentTitle + "|<author>" + author + "|<STRCT>" + getProcessTitle()
+				// + "|";
+				// Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
+				// prop.setTitel("TifHeaderImagedescription");
+				// prop.setWert(description);
+				// workProperties.add(prop);
+				// }
 
 				// Add collection names attached to the current record
 				if (this.currentCollectionList != null) {
@@ -341,7 +341,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 					logger.debug("Writing '" + fileName + "' into given folder...");
 					mm.write(fileName);
 					io.setMetsFilename(fileName);
-					
+
 					moveImages();
 					io.setImportReturnValue(ImportReturnValue.ExportFinished);
 
@@ -368,7 +368,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 	}
 
 	public void moveImages() throws ImportPluginException {
-		// OLD
+		// // OLD
 		// String basedir = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/import/");
 		// File folder = new File(basedir, imagefolder);
 		// if (folder.exists() && folder.isDirectory()) {
@@ -399,13 +399,28 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 		String basedir = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/import/");
 		File folder = new File(basedir, imagefolder);
 		if (folder.exists() && folder.isDirectory()) {
+			
 			File destinationRoot = new File(importFolder, getProcessTitle());
 			if (!destinationRoot.exists()) {
 				destinationRoot.mkdir();
 			}
+
 			try {
 				for (File file : folder.listFiles()) {
-					FileUtils.copyDirectory(file, new File(destinationRoot, file.getName()));
+					if (file.isDirectory()) {
+						FileUtils.copyDirectory(file, new File(destinationRoot, file.getName()));
+					} else {
+
+						File destinationImages = new File(destinationRoot, "images");
+						if (!destinationImages.exists()) {
+							destinationImages.mkdir();
+						}
+						File destinationTif = new File(destinationImages, getProcessTitle() + "_tif");
+						if (!destinationTif.exists()) {
+							destinationTif.mkdir();
+						}
+						FileUtils.copyFile(file, new File(destinationTif, file.getName()));
+					}
 				}
 				// FileUtils.copyDirectory(folder, destinationTif);
 			} catch (IOException e) {
@@ -463,6 +478,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 				if (doc != null && doc.getRootElement() != null) {
 					Record record = new Record();
 					record.setData(f.getAbsolutePath());
+					record.setId(imagefolder);
 					records.add(record);
 				} else {
 					logger.error("Could not parse '" + filename + "'.");
