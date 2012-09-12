@@ -56,7 +56,6 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 	protected static final Logger logger = Logger.getLogger(IntrandaGoobiImport.class);
 
 	private static final String NAME = "goobiImport";
-	private static final String ID = "goobiImport";
 
 	protected String data = "";
 	protected String importFolder = "";
@@ -75,10 +74,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 	protected String author = "";
 	protected String volumeNumber = "";
 
-	@Override
-	public String getId() {
-		return ID;
-	}
+	
 
 	@Override
 	public PluginType getType() {
@@ -90,6 +86,10 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 		return NAME;
 	}
 
+	public String getId() {
+		return NAME;
+	}
+	
 	@Override
 	public String getDescription() {
 		return NAME;
