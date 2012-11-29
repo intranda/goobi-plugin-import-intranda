@@ -542,7 +542,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 			// removing anchor file
 			File anchor = new File(folder, filename.replace(".xml", "_anchor.xml"));
 			if (anchor.exists()) {
-				FileUtils.deleteQuietly(f);
+				FileUtils.deleteQuietly(anchor);
 			}
 
 			// renaming images folder
