@@ -18,9 +18,9 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.goobi.production.Import.DocstructElement;
-import org.goobi.production.Import.ImportObject;
-import org.goobi.production.Import.Record;
+import org.goobi.production.importer.DocstructElement;
+import org.goobi.production.importer.ImportObject;
+import org.goobi.production.importer.Record;
 import org.goobi.production.enums.ImportReturnValue;
 import org.goobi.production.enums.ImportType;
 import org.goobi.production.enums.PluginType;
@@ -43,9 +43,11 @@ import ugh.exceptions.PreferencesException;
 import ugh.exceptions.ReadException;
 import ugh.exceptions.WriteException;
 import ugh.fileformats.mets.MetsMods;
-import de.sub.goobi.Beans.Prozesseigenschaft;
-import de.sub.goobi.Beans.Vorlageeigenschaft;
-import de.sub.goobi.Beans.Werkstueckeigenschaft;
+
+import org.goobi.beans.Processproperty;
+import  org.goobi.beans.Templateproperty;
+import  org.goobi.beans.Masterpieceproperty;
+
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.UghHelper;
 import de.sub.goobi.helper.exceptions.ImportPluginException;
@@ -65,9 +67,9 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 	protected List<String> currentCollectionList;
 	protected String imagefolder;
 	protected String ats;
-	protected List<Prozesseigenschaft> processProperties = new ArrayList<Prozesseigenschaft>();
-	protected List<Werkstueckeigenschaft> workProperties = new ArrayList<Werkstueckeigenschaft>();
-	protected List<Vorlageeigenschaft> templateProperties = new ArrayList<Vorlageeigenschaft>();
+	protected List<Processproperty> processProperties = new ArrayList<Processproperty>();
+	protected List<Templateproperty> templateProperties = new ArrayList<Templateproperty>();
+	protected List<Masterpieceproperty> workProperties = new ArrayList<Masterpieceproperty>();
 
 	protected String currentTitle;
 	protected String docType;
@@ -187,14 +189,14 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 				}
 
 				{
-					Vorlageeigenschaft prop = new Vorlageeigenschaft();
+				    Templateproperty prop = new Templateproperty();
 					prop.setTitel("Titel");
 					prop.setWert(currentTitle);
 					templateProperties.add(prop);
 				}
 				{
 					if (StringUtils.isNotBlank(volumeNumber)) {
-						Vorlageeigenschaft prop = new Vorlageeigenschaft();
+					    Templateproperty prop = new Templateproperty();
 						prop.setTitel("Bandnummer");
 						prop.setWert(volumeNumber);
 						templateProperties.add(prop);
@@ -206,7 +208,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 					if (mdList != null && mdList.size() > 0) {
 						String analog = mdList.get(0).getValue();
 
-						Vorlageeigenschaft prop = new Vorlageeigenschaft();
+						Templateproperty prop = new Templateproperty();
 						prop.setTitel("Identifier");
 						prop.setWert(analog);
 						templateProperties.add(prop);
@@ -219,7 +221,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 						mdList = child.getAllMetadataByType(identifierType);
 						if (mdList != null && mdList.size() > 0) {
 							Metadata identifier = mdList.get(0);
-							Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
+							Masterpieceproperty prop = new Masterpieceproperty();
 							prop.setTitel("Identifier Band");
 							prop.setWert(identifier.getValue());
 							workProperties.add(prop);
@@ -228,7 +230,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 					}
 				}
 				{
-					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
+				    Masterpieceproperty prop = new Masterpieceproperty();
 					prop.setTitel("Artist");
 					prop.setWert(author);
 					workProperties.add(prop);
@@ -241,13 +243,13 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 				// workProperties.add(prop);
 				// }
 				{
-					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
+				    Masterpieceproperty prop = new Masterpieceproperty();
 					prop.setTitel("ATS");
 					prop.setWert(ats);
 					workProperties.add(prop);
 				}
 				{
-					Werkstueckeigenschaft prop = new Werkstueckeigenschaft();
+				    Masterpieceproperty prop = new Masterpieceproperty();
 					prop.setTitel("Identifier");
 					prop.setWert(currentIdentifier);
 					workProperties.add(prop);
@@ -318,9 +320,9 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 		List<ImportObject> answer = new ArrayList<ImportObject>();
 
 		for (Record r : records) {
-			processProperties = new ArrayList<Prozesseigenschaft>();
-			workProperties = new ArrayList<Werkstueckeigenschaft>();
-			templateProperties = new ArrayList<Vorlageeigenschaft>();
+			processProperties = new ArrayList<Processproperty>();
+			workProperties = new ArrayList<Masterpieceproperty>();
+			templateProperties = new ArrayList<Templateproperty>();
 			this.data = r.getData();
 			this.currentCollectionList = r.getCollections();
 			this.imagefolder = r.getId();
@@ -396,7 +398,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 		// }
 
 		// NEW
-		String basedir = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/import/");
+		String basedir =  ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/import/");
 		File folder = new File(basedir, imagefolder);
 		if (folder.exists() && folder.isDirectory()) {
 			
