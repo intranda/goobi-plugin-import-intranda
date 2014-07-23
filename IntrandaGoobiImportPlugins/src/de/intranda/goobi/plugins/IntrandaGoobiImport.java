@@ -67,6 +67,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
     protected File importFile;
     protected Prefs prefs;
     protected String currentIdentifier;
+    protected String identifierAnalog = null;
     protected List<String> currentCollectionList;
     protected String imagefolder;
     protected String ats;
@@ -155,6 +156,16 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                     currentIdentifier = String.valueOf(System.currentTimeMillis());
                 }
 
+                try {
+                    MetadataType identifierAnalogType = prefs.getMetadataTypeByName("CatalogIDSource");
+                    List<? extends Metadata> list = logicalDS.getAllMetadataByType(identifierAnalogType);
+                    if (list != null && mdList.size() > 0) {
+                        Metadata identifier = list.get(0);
+                        identifierAnalog = identifier.getValue();
+                    }
+                } catch (Exception e) {
+
+                }
                 // reading author
 
                 MetadataType authorType = prefs.getMetadataTypeByName("Author");
@@ -309,10 +320,18 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
     @Override
     public String getProcessTitle() {
         String answer = "";
-        if (StringUtils.isNotBlank(this.ats)) {
-            answer = ats.toLowerCase() + "_" + this.currentIdentifier;
+        
+        String suffix = "";
+        if (StringUtils.isNotBlank(identifierAnalog) && ConfigPlugins.getPluginConfig(this).getBoolean("useAnalogIdenifierInTitle", false)) {
+            suffix = identifierAnalog;
         } else {
-            answer = this.currentIdentifier;
+            suffix = currentIdentifier;
+        }
+        
+        if (StringUtils.isNotBlank(this.ats)) {
+            answer = ats.toLowerCase() + "_" +suffix;
+        } else {
+            answer = suffix;
         }
         if (StringUtils.isNotBlank(volumeNumber)) {
             answer = answer + "_" + volumeNumber;
@@ -583,6 +602,10 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
     };
 
     private String createAtstsl(String myTitle, String autor) {
+        if (ConfigPlugins.getPluginConfig(this).getBoolean("useSpecialAts", false)) {
+            return createSpecialATS(myTitle);
+        }
+
         String myAtsTsl = "";
         if (autor != null && !autor.equals("")) {
             /* autor */
@@ -634,11 +657,35 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                 counter++;
             }
         }
+        new UghHelper();
         /* im ATS-TSL die Umlaute ersetzen */
         //        if (FacesContext.getCurrentInstance() != null) {
-        myAtsTsl = new UghHelper().convertUmlaut(myAtsTsl);
+        myAtsTsl = UghHelper.convertUmlaut(myAtsTsl);
         //        }
         myAtsTsl = myAtsTsl.replaceAll("[\\W]", "");
         return myAtsTsl;
     }
+
+    private String createSpecialATS(String myTitle) {
+        String titleValue = "";
+        if (myTitle != null && !myTitle.isEmpty()) {
+            if (myTitle.contains(" ")) {
+                titleValue = myTitle.substring(0, myTitle.indexOf(" "));
+            } else {
+                titleValue = myTitle;
+            }
+        }
+        String myAtsTsl = "";
+
+        if (titleValue.length() > 6) {
+            myAtsTsl = titleValue.substring(0, 6);
+        } else {
+            myAtsTsl = titleValue;
+        }
+        new UghHelper();
+        myAtsTsl = UghHelper.convertUmlaut(myAtsTsl);
+        myAtsTsl = myAtsTsl.replaceAll("[\\W]", "");
+        return myAtsTsl.toLowerCase();
+    }
+
 }
