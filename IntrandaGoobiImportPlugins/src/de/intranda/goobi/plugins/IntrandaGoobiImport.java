@@ -660,7 +660,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
         new UghHelper();
         /* im ATS-TSL die Umlaute ersetzen */
         //        if (FacesContext.getCurrentInstance() != null) {
-        myAtsTsl = UghHelper.convertUmlaut(myAtsTsl);
+        myAtsTsl = new UghHelper().convertUmlaut(myAtsTsl);
         //        }
         myAtsTsl = myAtsTsl.replaceAll("[\\W]", "");
         return myAtsTsl;
@@ -683,7 +683,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
             myAtsTsl = titleValue;
         }
         new UghHelper();
-        myAtsTsl = UghHelper.convertUmlaut(myAtsTsl);
+        myAtsTsl = new UghHelper().convertUmlaut(myAtsTsl);
         myAtsTsl = myAtsTsl.replaceAll("[\\W]", "");
         return myAtsTsl.toLowerCase();
     }
