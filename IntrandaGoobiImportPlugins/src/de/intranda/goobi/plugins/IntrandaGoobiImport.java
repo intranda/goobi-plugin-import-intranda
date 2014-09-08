@@ -68,6 +68,8 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
     protected Prefs prefs;
     protected String currentIdentifier;
     protected String identifierAnalog = null;
+    protected String identifierAnalogVolume = null;
+
     protected List<String> currentCollectionList;
     protected String imagefolder;
     protected String ats;
@@ -115,6 +117,9 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
     @Override
     public Fileformat convertData() throws ImportPluginException {
+        identifierAnalog = null;
+        identifierAnalogVolume = null;
+        volumeNumber = null;
         Fileformat ff = null;
         try {
             ff = new MetsMods(prefs);
@@ -191,6 +196,14 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                             volumeNumber = md.getValue();
                         }
                     }
+
+                    MetadataType identifierAnalogType = prefs.getMetadataTypeByName("CatalogIDSource");
+                    List<? extends Metadata> list = logicalDS.getAllMetadataByType(identifierAnalogType);
+                    if (list != null && mdList.size() > 0) {
+                        Metadata identifier = list.get(0);
+                        identifierAnalogVolume = identifier.getValue();
+                    }
+
                 }
 
                 // reading ats
@@ -319,17 +332,20 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
     @Override
     public String getProcessTitle() {
+
         String answer = "";
-        
+
         String suffix = "";
-        if (StringUtils.isNotBlank(identifierAnalog) && ConfigPlugins.getPluginConfig(this).getBoolean("useAnalogIdenifierInTitle", false)) {
+        if (StringUtils.isNotBlank(identifierAnalogVolume) && ConfigPlugins.getPluginConfig(this).getBoolean("useAnalogIdenifierInTitle", false)) {
+            suffix = identifierAnalogVolume;
+        } else if (StringUtils.isNotBlank(identifierAnalog) && ConfigPlugins.getPluginConfig(this).getBoolean("useAnalogIdenifierInTitle", false)) {
             suffix = identifierAnalog;
         } else {
             suffix = currentIdentifier;
         }
-        
+
         if (StringUtils.isNotBlank(this.ats)) {
-            answer = ats.toLowerCase() + "_" +suffix;
+            answer = ats.toLowerCase() + "_" + suffix;
         } else {
             answer = suffix;
         }
