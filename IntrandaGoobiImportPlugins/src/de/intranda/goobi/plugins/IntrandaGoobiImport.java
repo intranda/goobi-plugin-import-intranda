@@ -349,8 +349,10 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
         } else {
             answer = suffix;
         }
-        if (StringUtils.isNotBlank(volumeNumber)) {
-            answer = answer + "_" + volumeNumber;
+        if (!ConfigPlugins.getPluginConfig(this).getBoolean("useAnalogIdenifierInTitle", false)) {
+            if (StringUtils.isNotBlank(volumeNumber)) {
+                answer = answer + "_" + volumeNumber;
+            }
         }
         return answer;
     }
