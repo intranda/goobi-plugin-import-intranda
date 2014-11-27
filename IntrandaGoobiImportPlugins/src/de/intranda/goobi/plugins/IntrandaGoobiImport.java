@@ -16,6 +16,7 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.log4j.chainsaw.Main;
 import org.goobi.production.importer.DocstructElement;
 import org.goobi.production.importer.ImportObject;
 import org.goobi.production.importer.Record;
@@ -344,6 +345,10 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
             suffix = currentIdentifier;
         }
 
+        if (suffix.contains(" ")) {
+            suffix = suffix.substring(0, suffix.indexOf(" "));
+        }
+        
         if (StringUtils.isNotBlank(this.ats)) {
             answer = ats.toLowerCase() + "_" + suffix;
         } else {
