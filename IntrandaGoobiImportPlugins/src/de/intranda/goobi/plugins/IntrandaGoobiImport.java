@@ -200,7 +200,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
                     MetadataType identifierAnalogType = prefs.getMetadataTypeByName("CatalogIDSource");
                     List<? extends Metadata> list = child.getAllMetadataByType(identifierAnalogType);
-                    if (list != null && mdList.size() > 0) {
+                    if (list != null && list.size() > 0) {
                         Metadata identifier = list.get(0);
                         identifierAnalogVolume = identifier.getValue();
                     }
