@@ -6,6 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +21,6 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.log4j.chainsaw.Main;
 import org.goobi.production.importer.DocstructElement;
 import org.goobi.production.importer.ImportObject;
 import org.goobi.production.importer.Record;
@@ -348,7 +352,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
         if (suffix.contains(" ")) {
             suffix = suffix.substring(0, suffix.indexOf(" "));
         }
-        
+
         if (StringUtils.isNotBlank(this.ats)) {
             answer = ats.toLowerCase() + "_" + suffix;
         } else {
@@ -417,34 +421,49 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
     }
 
     public void moveImages() throws ImportPluginException {
-
         // NEW
         String basedir = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/import/");
-        File folder = new File(basedir, imagefolder);
-        logger.debug("looking for images folder in " + folder.getAbsolutePath());
-        if (folder.exists() && folder.isDirectory()) {
-            File destinationRoot = new File(importFolder, getProcessTitle());
-            if (!destinationRoot.exists()) {
-                destinationRoot.mkdir();
-            }
+        Path path = Paths.get(basedir, imagefolder);
 
+        logger.debug("looking for images folder in " + path.toString());
+        if (path.toFile().exists() && path.toFile().isDirectory()) {
+            Path destination = Paths.get(importFolder, getProcessTitle());
+
+            //            File destinationRoot = new File();
+            //            if (!destinationRoot.exists()) {
+            //                destinationRoot.mkdir();
+            //            }
             try {
-                for (File file : folder.listFiles()) {
-                    if (file.isDirectory()) {
-                        FileUtils.copyDirectory(file, new File(destinationRoot, file.getName()));
-                    } else {
 
-                        File destinationImages = new File(destinationRoot, "images");
-                        if (!destinationImages.exists()) {
-                            destinationImages.mkdir();
-                        }
-                        File destinationTif = new File(destinationImages, FOLDER_PREFIX + getProcessTitle() + FOLDER_SUFFIX);
-                        if (!destinationTif.exists()) {
-                            destinationTif.mkdir();
-                        }
-                        FileUtils.copyFile(file, new File(destinationTif, file.getName()));
+                DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path);
+                for (Path currentElement : directoryStream) {
+                    if (Files.isDirectory(currentElement)) {
+                        Files.copy(currentElement, Paths.get(destination.toString(), currentElement.getFileName().toString()),
+                                StandardCopyOption.REPLACE_EXISTING);
+                    } else {
+                        Path dest =
+                                Paths.get(destination.toString(), "images", FOLDER_PREFIX + getProcessTitle() + FOLDER_SUFFIX, currentElement
+                                        .getFileName().toString());
+                        Files.copy(currentElement, dest, StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
+
+                //                for (File file : folder.listFiles()) {
+                //                    if (file.isDirectory()) {
+                //                        FileUtils.copyDirectory(file, new File(destinationRoot, file.getName()));
+                //                    } else {
+                //
+                //                        File destinationImages = new File(destinationRoot, "images");
+                //                        if (!destinationImages.exists()) {
+                //                            destinationImages.mkdir();
+                //                        }
+                //                        File destinationTif = new File(destinationImages, FOLDER_PREFIX + getProcessTitle() + FOLDER_SUFFIX);
+                //                        if (!destinationTif.exists()) {
+                //                            destinationTif.mkdir();
+                //                        }
+                //                        FileUtils.copyFile(file, new File(destinationTif, file.getName()));
+                //                    }
+                //                }
                 // FileUtils.copyDirectory(folder, destinationTif);
             } catch (IOException e) {
                 logger.error(this.currentIdentifier + ": " + e.getMessage(), e);
@@ -681,9 +700,10 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
             }
         }
         new UghHelper();
+        new UghHelper();
         /* im ATS-TSL die Umlaute ersetzen */
         //        if (FacesContext.getCurrentInstance() != null) {
-        myAtsTsl = new UghHelper().convertUmlaut(myAtsTsl);
+        myAtsTsl = UghHelper.convertUmlaut(myAtsTsl);
         //        }
         myAtsTsl = myAtsTsl.replaceAll("[\\W]", "");
         return myAtsTsl;
@@ -706,7 +726,8 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
             myAtsTsl = titleValue;
         }
         new UghHelper();
-        myAtsTsl = new UghHelper().convertUmlaut(myAtsTsl);
+        new UghHelper();
+        myAtsTsl = UghHelper.convertUmlaut(myAtsTsl);
         myAtsTsl = myAtsTsl.replaceAll("[\\W]", "");
         return myAtsTsl.toLowerCase();
     }
