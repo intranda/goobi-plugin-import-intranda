@@ -429,6 +429,13 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
         if (path.toFile().exists() && path.toFile().isDirectory()) {
             Path destination = Paths.get(importFolder, getProcessTitle());
 
+            if (!Files.exists(destination)) {
+                try {
+                    Files.createDirectory(destination);
+                } catch (IOException e) {
+                    logger.error(e);
+                }
+            }
             //            File destinationRoot = new File();
             //            if (!destinationRoot.exists()) {
             //                destinationRoot.mkdir();
@@ -438,13 +445,22 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                 DirectoryStream<Path> directoryStream = Files.newDirectoryStream(path);
                 for (Path currentElement : directoryStream) {
                     if (Files.isDirectory(currentElement)) {
-                        Files.copy(currentElement, Paths.get(destination.toString(), currentElement.getFileName().toString()),
-                                StandardCopyOption.REPLACE_EXISTING);
+                        Path dest = Paths.get(destination.toString(), currentElement.getFileName().toString());
+                        FileUtils.copyDirectory(currentElement.toFile(), dest.toFile());
                     } else {
-                        Path dest =
-                                Paths.get(destination.toString(), "images", FOLDER_PREFIX + getProcessTitle() + FOLDER_SUFFIX, currentElement
-                                        .getFileName().toString());
-                        Files.copy(currentElement, dest, StandardCopyOption.REPLACE_EXISTING);
+                        Path dest = Paths.get(destination.toString(), "images", FOLDER_PREFIX + getProcessTitle() + FOLDER_SUFFIX);
+                        if (!Files.exists(dest)) {
+                            try {
+                                Files.createDirectory(dest);
+                            } catch (IOException e) {
+                                logger.error(e);
+                            }
+                        }
+                        Path p = Paths.get(dest.toString(), currentElement.getFileName().toString());
+
+                        FileUtils.copyFile(currentElement.toFile(), p.toFile());
+
+
                     }
                 }
 
