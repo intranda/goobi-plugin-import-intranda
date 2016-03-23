@@ -52,6 +52,7 @@ import org.goobi.beans.Templateproperty;
 import org.goobi.beans.Masterpieceproperty;
 
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.forms.MassImportForm;
 import de.sub.goobi.helper.UghHelper;
 import de.sub.goobi.helper.exceptions.ImportPluginException;
 
@@ -86,7 +87,9 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
     protected String docType;
     protected String author = "";
     protected String volumeNumber = "";
+    private MassImportForm form;
 
+    
     @Override
     public PluginType getType() {
         return PluginType.Import;
@@ -371,6 +374,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
         List<ImportObject> answer = new ArrayList<ImportObject>();
 
         for (Record r : records) {
+            form.addProcessToProgressBar();
             processProperties = new ArrayList<Processproperty>();
             workProperties = new ArrayList<Masterpieceproperty>();
             templateProperties = new ArrayList<Templateproperty>();
@@ -746,6 +750,11 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
         myAtsTsl = UghHelper.convertUmlaut(myAtsTsl);
         myAtsTsl = myAtsTsl.replaceAll("[\\W]", "");
         return myAtsTsl.toLowerCase();
+    }
+
+    @Override
+    public void setForm(MassImportForm form) {
+this.form = form;
     }
 
 }
