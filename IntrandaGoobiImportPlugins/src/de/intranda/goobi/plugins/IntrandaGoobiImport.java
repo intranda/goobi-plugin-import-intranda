@@ -103,7 +103,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
         return NAME;
     }
 
-    @Override
+    
     public String getDescription() {
         return NAME;
     }
@@ -615,7 +615,6 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
                 }
             }
-
         }
     }
 
