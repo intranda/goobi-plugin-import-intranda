@@ -1,7 +1,10 @@
 package de.intranda.goobi.plugins;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,6 +14,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -26,6 +30,7 @@ import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.properties.ImportProperty;
 
 import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.config.ConfigurationHelper;
 import de.sub.goobi.forms.MassImportForm;
 import de.sub.goobi.helper.NIOFileUtils;
 import de.sub.goobi.helper.UghHelper;
@@ -35,6 +40,7 @@ import net.xeoh.plugins.base.annotations.PluginImplementation;
 import ugh.dl.DocStruct;
 import ugh.dl.Fileformat;
 import ugh.dl.Metadata;
+import ugh.dl.Person;
 import ugh.dl.Prefs;
 import ugh.exceptions.UGHException;
 import ugh.fileformats.mets.MetsMods;
@@ -134,12 +140,27 @@ public class GoobiProcessImport implements IImportPlugin, IPlugin {
             processTitleDestination = processTitleGeneration.get(topstruct.getType().getName());
 
             List<Metadata> metadataList = topstruct.getAllMetadata();
+            String title = "";
+            String author = "";
             for (Metadata metadata : metadataList) {
                 processTitleDestination = processTitleDestination.replace(metadata.getType().getName(), metadata.getValue());
+                if (metadata.getType().getName().equals("TitleDocMain")) {
+                    title = metadata.getValue();
+                }
+            }
+            List<Person> personList = topstruct.getAllPersons();
+            if (personList!= null && !personList.isEmpty()) {
+                for (Person person : personList) {
+                    if (person.getType().getName().equals("Author")) {
+                        author = person.getLastname();
+                    }
+                }
             }
 
             // replace ATS with ATS from source or create new one?
-            processTitleDestination = processTitleDestination.replace("ATS", processTitleInSource.substring(0, processTitleInSource.indexOf("_")));
+
+            String ats = createAtstsl(title, author);
+            processTitleDestination = processTitleDestination.replace("ATS", ats);
 
             UghHelper.convertUmlaut(processTitleDestination);
             processTitleDestination = processTitleDestination.replaceAll("[\\W]", "");
@@ -207,10 +228,10 @@ public class GoobiProcessImport implements IImportPlugin, IPlugin {
                 io.setImportReturnValue(ImportReturnValue.WriteError);
                 io.setErrorMessage(e.getMessage());
             }
-//            io.setImportFileName(processTitleDestination);
+            //            io.setImportFileName(processTitleDestination);
             io.setMetsFilename(getImportFolder() + processTitleDestination + ".xml");
             io.setProcessTitle(processTitleDestination);
-            
+
         }
 
         return generatedFiles;
@@ -226,7 +247,11 @@ public class GoobiProcessImport implements IImportPlugin, IPlugin {
         Path sourceOcrFolder = Paths.get(sourceRootFolder.toString(), "ocr");
 
         if (!Files.exists(destinationRootFolder)) {
-            Files.createDirectories(destinationRootFolder);
+            try {
+                Files.createDirectories(destinationRootFolder);
+            } catch (IOException e) {
+                log.error(e);
+            }
         }
         //        // copy files from source
         //        List<Path> fileList = NIOFileUtils.listFiles(sourceRootFolder.toString(), NIOFileUtils.fileFilter);
@@ -237,15 +262,29 @@ public class GoobiProcessImport implements IImportPlugin, IPlugin {
         // images
         if (Files.exists(sourceImageFolder)) {
             if (!Files.exists(destinationImagesFolder)) {
-                Files.createDirectories(destinationImagesFolder);
+                try {
+                    Files.createDirectories(destinationImagesFolder);
+                } catch (IOException e) {
+                    log.error(e);
+                }
             }
             List<Path> dataInSourceImageFolder = NIOFileUtils.listFiles(sourceImageFolder.toString());
 
             for (Path currentData : dataInSourceImageFolder) {
-                if (Files.isRegularFile(currentData)) {
-                    copyFile(currentData, Paths.get(destinationImagesFolder.toString(), currentData.getFileName().toString()));
+                if (Files.isDirectory(currentData)) {
+                    try {
+                        copyFolder(currentData, destinationImagesFolder);
+                    } catch (IOException e) {
+                        log.error(e);
+                        throw e;
+                    }
                 } else {
-                    copyFolder(currentData, destinationImagesFolder);
+                    try {
+                        copyFile(currentData, Paths.get(destinationImagesFolder.toString(), currentData.getFileName().toString()));
+                    } catch (IOException e) {
+                        log.error(e);
+                        throw e;
+                    }
                 }
             }
         }
@@ -286,11 +325,18 @@ public class GoobiProcessImport implements IImportPlugin, IPlugin {
                 destinationSubFolder = Paths.get(destinationFolder.toString(), foldername);
             }
         }
+        if (!Files.exists(destinationSubFolder)) {
+            Files.createDirectories(destinationSubFolder);
+        }
 
         if (moveFiles) {
             Files.move(currentData, destinationSubFolder, StandardCopyOption.REPLACE_EXISTING);
         } else {
-            NIOFileUtils.copyDirectory(currentData, destinationSubFolder);
+            List<Path> files = NIOFileUtils.listFiles(currentData.toString());
+            for (Path p : files) {
+                copyFile(p, Paths.get(destinationSubFolder.toString(), p.getFileName().toString()));
+            }
+            //            NIOFileUtils.copyDirectory(currentData, destinationSubFolder);
         }
 
     }
@@ -398,8 +444,88 @@ public class GoobiProcessImport implements IImportPlugin, IPlugin {
     @Override
     public void setDocstruct(DocstructElement dse) {
     }
-    
+
     public String getDescription() {
         return "";
+    }
+
+    public String createAtstsl(String myTitle, String autor) {
+        String myAtsTsl = "";
+        if (autor != null && !autor.equals("")) {
+            /* autor */
+            if (autor.length() > 4) {
+                myAtsTsl = autor.substring(0, 4);
+            } else {
+                myAtsTsl = autor;
+                /* titel */
+            }
+
+            if (myTitle.length() > 4) {
+                myAtsTsl += myTitle.substring(0, 4);
+            } else {
+                myAtsTsl += myTitle;
+            }
+        }
+
+        /*
+         * -------------------------------- bei Zeitschriften Tsl berechnen --------------------------------
+         */
+        // if (gattung.startsWith("ab") || gattung.startsWith("ob")) {
+        if (autor == null || autor.equals("")) {
+            myAtsTsl = "";
+            StringTokenizer tokenizer = new StringTokenizer(myTitle);
+            int counter = 1;
+            while (tokenizer.hasMoreTokens()) {
+                String tok = tokenizer.nextToken();
+                if (counter == 1) {
+                    if (tok.length() > 4) {
+                        myAtsTsl += tok.substring(0, 4);
+                    } else {
+                        myAtsTsl += tok;
+                    }
+                }
+                if (counter == 2 || counter == 3) {
+                    if (tok.length() > 2) {
+                        myAtsTsl += tok.substring(0, 2);
+                    } else {
+                        myAtsTsl += tok;
+                    }
+                }
+                if (counter == 4) {
+                    if (tok.length() > 1) {
+                        myAtsTsl += tok.substring(0, 1);
+                    } else {
+                        myAtsTsl += tok;
+                    }
+                }
+                counter++;
+            }
+        }
+        /* im ATS-TSL die Umlaute ersetzen */
+        myAtsTsl = convertUmlaut(myAtsTsl);
+        myAtsTsl = myAtsTsl.toLowerCase().replaceAll("[\\W]", "");
+        return myAtsTsl;
+    }
+
+    protected String convertUmlaut(String inString) {
+        /* Pfad zur Datei ermitteln */
+        String filename = ConfigurationHelper.getInstance().getConfigurationFolder() + "goobi_opacUmlaut.txt";
+        //      }
+        /* Datei zeilenweise durchlaufen und die Sprache vergleichen */
+        try {
+            FileInputStream fis = new FileInputStream(filename);
+            InputStreamReader isr = new InputStreamReader(fis, "UTF8");
+            BufferedReader in = new BufferedReader(isr);
+            String str;
+            while ((str = in.readLine()) != null) {
+                if (str.length() > 0) {
+                    inString = inString.replaceAll(str.split(" ")[0], str.split(" ")[1]);
+                }
+            }
+            in.close();
+        } catch (IOException e) {
+            log.error("IOException bei Umlautkonvertierung", e);
+        }
+        return inString;
     }
 }
