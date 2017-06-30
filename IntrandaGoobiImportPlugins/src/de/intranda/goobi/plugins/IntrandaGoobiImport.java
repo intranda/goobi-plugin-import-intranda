@@ -88,7 +88,6 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
     protected String volumeNumber = "";
     private MassImportForm form;
 
-    
     @Override
     public PluginType getType() {
         return PluginType.Import;
@@ -103,7 +102,6 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
         return NAME;
     }
 
-    
     public String getDescription() {
         return NAME;
     }
@@ -322,8 +320,8 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
             } catch (MetadataTypeNotAllowedException e) {
                 logger.error(e.getMessage(), e);
                 if (logicalDS != null) {
-                    throw new ImportPluginException("Metadata fo type " + "singleDigCollection" + " is not allowed for "
-                            + logicalDS.getType().getName(), e);
+                    throw new ImportPluginException("Metadata fo type " + "singleDigCollection" + " is not allowed for " + logicalDS.getType()
+                            .getName(), e);
                 }
 
             }
@@ -373,7 +371,9 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
         List<ImportObject> answer = new ArrayList<ImportObject>();
 
         for (Record r : records) {
-            form.addProcessToProgressBar();
+            if (form != null) {
+                form.addProcessToProgressBar();
+            }
             processProperties = new ArrayList<Processproperty>();
             workProperties = new ArrayList<Masterpieceproperty>();
             templateProperties = new ArrayList<Templateproperty>();
@@ -463,27 +463,9 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
                         FileUtils.copyFile(currentElement.toFile(), p.toFile());
 
-
                     }
                 }
 
-                //                for (File file : folder.listFiles()) {
-                //                    if (file.isDirectory()) {
-                //                        FileUtils.copyDirectory(file, new File(destinationRoot, file.getName()));
-                //                    } else {
-                //
-                //                        File destinationImages = new File(destinationRoot, "images");
-                //                        if (!destinationImages.exists()) {
-                //                            destinationImages.mkdir();
-                //                        }
-                //                        File destinationTif = new File(destinationImages, FOLDER_PREFIX + getProcessTitle() + FOLDER_SUFFIX);
-                //                        if (!destinationTif.exists()) {
-                //                            destinationTif.mkdir();
-                //                        }
-                //                        FileUtils.copyFile(file, new File(destinationTif, file.getName()));
-                //                    }
-                //                }
-                // FileUtils.copyDirectory(folder, destinationTif);
             } catch (IOException e) {
                 logger.error(this.currentIdentifier + ": " + e.getMessage(), e);
                 throw new ImportPluginException(e);
@@ -752,7 +734,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
     @Override
     public void setForm(MassImportForm form) {
-this.form = form;
+        this.form = form;
     }
 
 }
