@@ -26,6 +26,7 @@ import org.goobi.production.importer.DocstructElement;
 import org.goobi.production.importer.ImportObject;
 import org.goobi.production.importer.Record;
 import org.goobi.production.plugin.interfaces.IImportPlugin;
+import org.goobi.production.plugin.interfaces.IImportPluginVersion2;
 import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.properties.ImportProperty;
 
@@ -47,7 +48,7 @@ import ugh.fileformats.mets.MetsMods;
 
 @PluginImplementation
 @Log4j
-public class GoobiProcessImport implements IImportPlugin, IPlugin {
+public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin {
 
     private static final String PLUGIN_TITLE = "intranda_Goobi_Process_Folder_Import";
 
@@ -69,7 +70,7 @@ public class GoobiProcessImport implements IImportPlugin, IPlugin {
 
     private Map<String, String> processTitleGeneration = new HashMap<>();
 
-    public GoobiProcessImport() {
+    public GoobiProcessFolderImport() {
 
         XMLConfiguration config = ConfigPlugins.getPluginConfig(this);
 
@@ -88,7 +89,7 @@ public class GoobiProcessImport implements IImportPlugin, IPlugin {
     }
 
     public static void main(String[] args) throws Exception {
-        GoobiProcessImport imp = new GoobiProcessImport();
+        GoobiProcessFolderImport imp = new GoobiProcessFolderImport();
         imp.setImportFolder("/opt/digiverso/goobi/tmp/");
         Record fixture = new Record();
         fixture.setData("/opt/digiverso/intrandaTransfer/38646");
@@ -377,7 +378,7 @@ public class GoobiProcessImport implements IImportPlugin, IPlugin {
         String folder = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/goobi/import/");
         for (String filename : filenames) {
             Record record = new Record();
-            record.setId(filename);
+            record.setId(folder + filename);
             record.setData(folder + filename);
             answer.add(record);
         }
@@ -528,4 +529,9 @@ public class GoobiProcessImport implements IImportPlugin, IPlugin {
         }
         return inString;
     }
+
+	@Override
+	public boolean isRunnableAsGoobiScript() {
+		return true;
+	}
 }
