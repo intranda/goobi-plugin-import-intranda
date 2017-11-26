@@ -2,12 +2,12 @@
 
 <!-- ADJUST PROJECT NAME, FILENAME AND INCLUDED CLASSES FOR JENKINS IF YOU COPY THIS FILE TO A NEW PROJECT-->
 
-<project name="Goobi Import Plugin" basedir="." default="deploy">
+<project name="Goobi Import Plugin for existing process folders from other Goobi instances" basedir="." default="deploy">
 
 	<!-- ================================= 
 	        properties             
 	     ================================= -->
-	<property name="filename" value="plugin_intranda_import_processFolder" />
+	<property name="filename" value="plugin_intranda_import_processFolders" />
 	<property name="dir.build" value="bin" />
 	<property name="dir.src" value="src" />
 	<property name="dir.test" value="test/src" />
