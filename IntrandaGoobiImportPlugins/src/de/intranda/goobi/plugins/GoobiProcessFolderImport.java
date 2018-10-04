@@ -25,7 +25,6 @@ import org.goobi.production.enums.PluginType;
 import org.goobi.production.importer.DocstructElement;
 import org.goobi.production.importer.ImportObject;
 import org.goobi.production.importer.Record;
-import org.goobi.production.plugin.interfaces.IImportPlugin;
 import org.goobi.production.plugin.interfaces.IImportPluginVersion2;
 import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.properties.ImportProperty;
@@ -34,6 +33,7 @@ import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.config.ConfigurationHelper;
 import de.sub.goobi.forms.MassImportForm;
 import de.sub.goobi.helper.NIOFileUtils;
+import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.UghHelper;
 import de.sub.goobi.helper.exceptions.ImportPluginException;
 import lombok.extern.log4j.Log4j;
@@ -196,7 +196,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
 
             String imagesFolder = currentRecord.getData() + File.separator + "images";
 
-            List<String> imageFolderList = NIOFileUtils.list(imagesFolder, NIOFileUtils.folderFilter);
+            List<String> imageFolderList = StorageProvider.getInstance().list(imagesFolder, NIOFileUtils.folderFilter);
             String masterFolder = "";
             for (String currentImageFolder : imageFolderList) {
                 if (currentImageFolder.startsWith("master_")) {
@@ -269,7 +269,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
                     log.error(e);
                 }
             }
-            List<Path> dataInSourceImageFolder = NIOFileUtils.listFiles(sourceImageFolder.toString());
+            List<Path> dataInSourceImageFolder = StorageProvider.getInstance().listFiles(sourceImageFolder.toString());
 
             for (Path currentData : dataInSourceImageFolder) {
                 if (Files.isDirectory(currentData)) {
@@ -295,7 +295,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
             if (!Files.exists(destinationOcrFolder)) {
                 Files.createDirectories(destinationOcrFolder);
             }
-            List<Path> dataInSourceImageFolder = NIOFileUtils.listFiles(sourceOcrFolder.toString());
+            List<Path> dataInSourceImageFolder = StorageProvider.getInstance().listFiles(sourceOcrFolder.toString());
 
             for (Path currentData : dataInSourceImageFolder) {
                 if (Files.isRegularFile(currentData)) {
@@ -333,7 +333,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
         if (moveFiles) {
             Files.move(currentData, destinationSubFolder, StandardCopyOption.REPLACE_EXISTING);
         } else {
-            List<Path> files = NIOFileUtils.listFiles(currentData.toString());
+            List<Path> files = StorageProvider.getInstance().listFiles(currentData.toString());
             for (Path p : files) {
                 copyFile(p, Paths.get(destinationSubFolder.toString(), p.getFileName().toString()));
             }
@@ -396,7 +396,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
 
     @Override
     public List<ImportType> getImportTypes() {
-        List<ImportType> answer = new ArrayList<ImportType>();
+        List<ImportType> answer = new ArrayList<>();
         answer.add(ImportType.FOLDER);
         return answer;
     }
@@ -409,7 +409,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
     @Override
     public List<String> getAllFilenames() {
         String folder = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/goobi/import/");
-        List<String> filesInImportFolder = NIOFileUtils.list(folder);
+        List<String> filesInImportFolder = StorageProvider.getInstance().list(folder);
         return filesInImportFolder;
     }
 
@@ -530,8 +530,8 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
         return inString;
     }
 
-	@Override
-	public boolean isRunnableAsGoobiScript() {
-		return true;
-	}
+    @Override
+    public boolean isRunnableAsGoobiScript() {
+        return true;
+    }
 }

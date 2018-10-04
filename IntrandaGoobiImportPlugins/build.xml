@@ -2,7 +2,7 @@
 
 <!-- ADJUST PROJECT NAME, FILENAME AND INCLUDED CLASSES FOR JENKINS IF YOU COPY THIS FILE TO A NEW PROJECT-->
 
-<project name="Goobi Import Plugin for existing process folders from other Goobi instances" basedir="." default="deploy">
+<project name="Goobi Import Plugin" basedir="." default="deploy">
 
 	<!-- ================================= 
 	        properties             

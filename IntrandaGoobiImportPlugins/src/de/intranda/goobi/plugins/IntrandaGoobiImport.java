@@ -15,24 +15,30 @@ import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import net.xeoh.plugins.base.annotations.PluginImplementation;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.goobi.production.importer.DocstructElement;
-import org.goobi.production.importer.ImportObject;
-import org.goobi.production.importer.Record;
+import org.goobi.beans.Masterpieceproperty;
+import org.goobi.beans.Processproperty;
+import org.goobi.beans.Templateproperty;
 import org.goobi.production.enums.ImportReturnValue;
 import org.goobi.production.enums.ImportType;
 import org.goobi.production.enums.PluginType;
+import org.goobi.production.importer.DocstructElement;
+import org.goobi.production.importer.ImportObject;
+import org.goobi.production.importer.Record;
 import org.goobi.production.plugin.interfaces.IImportPlugin;
 import org.goobi.production.plugin.interfaces.IPlugin;
 import org.goobi.production.properties.ImportProperty;
-import org.jdom.Document;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import org.jdom2.Document;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 
+import de.sub.goobi.config.ConfigPlugins;
+import de.sub.goobi.forms.MassImportForm;
+import de.sub.goobi.helper.UghHelper;
+import de.sub.goobi.helper.exceptions.ImportPluginException;
+import net.xeoh.plugins.base.annotations.PluginImplementation;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
 import ugh.dl.Fileformat;
@@ -45,15 +51,6 @@ import ugh.exceptions.PreferencesException;
 import ugh.exceptions.ReadException;
 import ugh.exceptions.WriteException;
 import ugh.fileformats.mets.MetsMods;
-
-import org.goobi.beans.Processproperty;
-import org.goobi.beans.Templateproperty;
-import org.goobi.beans.Masterpieceproperty;
-
-import de.sub.goobi.config.ConfigPlugins;
-import de.sub.goobi.forms.MassImportForm;
-import de.sub.goobi.helper.UghHelper;
-import de.sub.goobi.helper.exceptions.ImportPluginException;
 
 @PluginImplementation
 public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
@@ -78,9 +75,9 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
     protected List<String> currentCollectionList;
     protected String imagefolder;
     protected String ats;
-    protected List<Processproperty> processProperties = new ArrayList<Processproperty>();
-    protected List<Templateproperty> templateProperties = new ArrayList<Templateproperty>();
-    protected List<Masterpieceproperty> workProperties = new ArrayList<Masterpieceproperty>();
+    protected List<Processproperty> processProperties = new ArrayList<>();
+    protected List<Templateproperty> templateProperties = new ArrayList<>();
+    protected List<Masterpieceproperty> workProperties = new ArrayList<>();
 
     protected String currentTitle;
     protected String docType;
@@ -321,7 +318,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                 logger.error(e.getMessage(), e);
                 if (logicalDS != null) {
                     throw new ImportPluginException("Metadata fo type " + "singleDigCollection" + " is not allowed for " + logicalDS.getType()
-                            .getName(), e);
+                    .getName(), e);
                 }
 
             }
@@ -368,15 +365,15 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
     @Override
     public List<ImportObject> generateFiles(List<Record> records) {
-        List<ImportObject> answer = new ArrayList<ImportObject>();
+        List<ImportObject> answer = new ArrayList<>();
 
         for (Record r : records) {
             if (form != null) {
                 form.addProcessToProgressBar();
             }
-            processProperties = new ArrayList<Processproperty>();
-            workProperties = new ArrayList<Masterpieceproperty>();
-            templateProperties = new ArrayList<Templateproperty>();
+            processProperties = new ArrayList<>();
+            workProperties = new ArrayList<>();
+            templateProperties = new ArrayList<>();
             this.data = r.getData();
             this.currentCollectionList = r.getCollections();
             this.imagefolder = r.getId();
@@ -480,12 +477,12 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
     @Override
     public List<Record> splitRecords(String records) {
-        return new ArrayList<Record>();
+        return new ArrayList<>();
     }
 
     @Override
     public List<Record> generateRecordsFromFile() {
-        List<Record> records = new ArrayList<Record>();
+        List<Record> records = new ArrayList<>();
         BufferedReader br = null;
         try {
             br = new BufferedReader(new FileReader(importFile));
@@ -512,7 +509,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
     @Override
     public List<Record> generateRecordsFromFilenames(List<String> filenames) {
         String folder = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/goobi/import/");
-        List<Record> records = new ArrayList<Record>();
+        List<Record> records = new ArrayList<>();
         for (String filename : filenames) {
             File f = new File(folder, filename);
             imagefolder = filename.replace(".xml", "");
@@ -543,24 +540,24 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
     @Override
     public List<String> splitIds(String ids) {
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     @Override
     public List<ImportType> getImportTypes() {
-        List<ImportType> answer = new ArrayList<ImportType>();
+        List<ImportType> answer = new ArrayList<>();
         answer.add(ImportType.FOLDER);
         return answer;
     }
 
     @Override
     public List<ImportProperty> getProperties() {
-        return new ArrayList<ImportProperty>();
+        return new ArrayList<>();
     }
 
     @Override
     public List<String> getAllFilenames() {
-        List<String> answer = new ArrayList<String>();
+        List<String> answer = new ArrayList<>();
         String folder = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/goobi/import/");
         File f = new File(folder);
         if (f.exists() && f.isDirectory()) {
