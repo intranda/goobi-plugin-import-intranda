@@ -14,6 +14,6 @@
 		<doctype doctypename="NewspaperVolume" processtitle="ATS_CatalogIDDigital" />
 	</title>
 
-	<moveFiles>false</moveFiles>
+	<moveFiles>true</moveFiles>
 
 </config_plugin>
