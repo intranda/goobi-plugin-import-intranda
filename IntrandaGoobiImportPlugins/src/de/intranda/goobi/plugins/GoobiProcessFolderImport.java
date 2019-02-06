@@ -316,6 +316,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
         copyDataFile = Paths.get(source, "taskmanager/issues_result.json");
         if (Files.exists(copyDataFile)) {
             Path destinationDataFile = Paths.get(destinationRootFolder.toString(), "taskmanager/issues_result.json");
+            Files.createDirectories(destinationDataFile.getParent());
             copyFile(copyDataFile, destinationDataFile);
 
         }
@@ -323,6 +324,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
         copyDataFile = Paths.get(source, "taskmanager/issues_result_manual.json");
         if (Files.exists(copyDataFile)) {
             Path destinationDataFile = Paths.get(destinationRootFolder.toString(), "taskmanager/issues_result_manual.json");
+            Files.createDirectories(destinationDataFile.getParent());
             copyFile(copyDataFile, destinationDataFile);
 
         }
