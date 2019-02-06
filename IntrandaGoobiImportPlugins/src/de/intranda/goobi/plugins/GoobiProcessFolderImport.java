@@ -150,7 +150,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
                 }
             }
             List<Person> personList = topstruct.getAllPersons();
-            if (personList!= null && !personList.isEmpty()) {
+            if (personList != null && !personList.isEmpty()) {
                 for (Person person : personList) {
                     if (person.getType().getName().equals("Author")) {
                         author = person.getLastname();
@@ -304,6 +304,13 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
                     copyFolder(currentData, destinationOcrFolder);
                 }
             }
+        }
+        // copy imageData.xml
+        Path imageDataFile = Paths.get(source, "imageData.xml");
+        if (Files.exists(imageDataFile)) {
+            Path destinationImageDataFile = Paths.get(destinationRootFolder.toString(), "imageData.xml");
+            copyFile(imageDataFile, destinationImageDataFile);
+
         }
 
     }
