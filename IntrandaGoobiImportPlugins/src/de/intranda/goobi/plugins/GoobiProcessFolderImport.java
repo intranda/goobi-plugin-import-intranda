@@ -306,10 +306,24 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
             }
         }
         // copy imageData.xml
-        Path imageDataFile = Paths.get(source, "imageData.xml");
-        if (Files.exists(imageDataFile)) {
-            Path destinationImageDataFile = Paths.get(destinationRootFolder.toString(), "imageData.xml");
-            copyFile(imageDataFile, destinationImageDataFile);
+        Path copyDataFile = Paths.get(source, "imageData.xml");
+        if (Files.exists(copyDataFile)) {
+            Path destinationDataFile = Paths.get(destinationRootFolder.toString(), "imageData.xml");
+            copyFile(copyDataFile, destinationDataFile);
+
+        }
+        // copy taskmanager/issues_result.json
+        copyDataFile = Paths.get(source, "taskmanager/issues_result.json");
+        if (Files.exists(copyDataFile)) {
+            Path destinationDataFile = Paths.get(destinationRootFolder.toString(), "taskmanager/issues_result.json");
+            copyFile(copyDataFile, destinationDataFile);
+
+        }
+        // copy taskmanager/issues_result_manual.json
+        copyDataFile = Paths.get(source, "taskmanager/issues_result_manual.json");
+        if (Files.exists(copyDataFile)) {
+            Path destinationDataFile = Paths.get(destinationRootFolder.toString(), "taskmanager/issues_result_manual.json");
+            copyFile(copyDataFile, destinationDataFile);
 
         }
 
