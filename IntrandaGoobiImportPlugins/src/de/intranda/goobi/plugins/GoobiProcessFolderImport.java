@@ -56,9 +56,9 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
     private String importFolder;
     private MassImportForm form;
 
-    private String prefixInSource;
-    private String suffixInSource;
-    private String processTitleInSource;
+    private String prefixInSource = "";
+    private String suffixInSource = "";
+    private String processTitleInSource = "";
 
     private String prefixInDestination;
     private String suffixInDestination;
@@ -209,7 +209,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
                     masterFolder = currentImageFolder;
                 }
             }
-            processTitleInSource = masterFolder.replace(prefixInSource, "").replaceAll(suffixInSource, "");
+            processTitleInSource = masterFolder.replace(prefixInSource, "").replace(suffixInSource, "");
             ImportObject io = new ImportObject();
             generatedFiles.add(io);
             try {

@@ -3,6 +3,6 @@
 		<exec executable="mvn">
 			<arg value="package"/>
 		</exec>
-		<copy file="module-main/target/plugin_intranda_import_intranda.jar" todir="/opt/digiverso/goobi/plugins/import/"/>
+		<copy file="target/plugin_intranda_import_intranda.jar" todir="/opt/digiverso/goobi/plugins/import/"/>
 	</target>
 </project>
