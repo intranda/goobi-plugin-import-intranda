@@ -193,7 +193,9 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
             form.addProcessToProgressBar();
 
             currentMetsFile = currentRecord.getData() + File.separator + "meta.xml";
-
+            if (!Files.exists(Paths.get(currentMetsFile))) {
+                continue;
+            }
             String imagesFolder = currentRecord.getData() + File.separator + "images";
 
             List<String> imageFolderList = StorageProvider.getInstance().list(imagesFolder, NIOFileUtils.folderFilter);
@@ -400,10 +402,12 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
         List<Record> answer = new LinkedList<>();
         String folder = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/goobi/import/");
         for (String filename : filenames) {
-            Record record = new Record();
-            record.setId(folder + filename);
-            record.setData(folder + filename);
-            answer.add(record);
+            if (Files.exists(Paths.get(folder,filename, "meta.xml"))) {
+                Record record = new Record();
+                record.setId(folder + filename);
+                record.setData(folder + filename);
+                answer.add(record);
+            }
         }
         return answer;
     }
