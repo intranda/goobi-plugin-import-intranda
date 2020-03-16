@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config_plugin>
 
-	<basedir>/home/robert/dlc/</basedir>
+	<basedir>/opt/digiverso/goobi/import/</basedir>
 	<prefixInDestination>master_</prefixInDestination>
 	<suffixInDestination>_media</suffixInDestination>
 
@@ -16,4 +16,5 @@
 
 	<moveFiles>true</moveFiles>
 
+    <replaceExistingProcesses>false</replaceExistingProcesses>
 </config_plugin>

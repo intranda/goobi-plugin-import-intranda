@@ -38,7 +38,6 @@ import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.forms.MassImportForm;
 import de.sub.goobi.helper.UghHelper;
 import de.sub.goobi.helper.exceptions.ImportPluginException;
-import net.xeoh.plugins.base.annotations.PluginImplementation;
 import ugh.dl.DigitalDocument;
 import ugh.dl.DocStruct;
 import ugh.dl.Fileformat;
@@ -52,7 +51,7 @@ import ugh.exceptions.ReadException;
 import ugh.exceptions.WriteException;
 import ugh.fileformats.mets.MetsMods;
 
-@PluginImplementation
+//@PluginImplementation
 public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
 
     protected static final Logger logger = Logger.getLogger(IntrandaGoobiImport.class);

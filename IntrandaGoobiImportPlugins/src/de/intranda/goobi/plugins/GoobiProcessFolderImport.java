@@ -19,6 +19,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.goobi.beans.Process;
 import org.goobi.production.enums.ImportReturnValue;
 import org.goobi.production.enums.ImportType;
 import org.goobi.production.enums.PluginType;
@@ -35,7 +36,10 @@ import de.sub.goobi.forms.MassImportForm;
 import de.sub.goobi.helper.NIOFileUtils;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.UghHelper;
+import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.ImportPluginException;
+import de.sub.goobi.helper.exceptions.SwapException;
+import de.sub.goobi.persistence.managers.ProcessManager;
 import lombok.extern.log4j.Log4j;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import ugh.dl.DocStruct;
@@ -43,7 +47,9 @@ import ugh.dl.Fileformat;
 import ugh.dl.Metadata;
 import ugh.dl.Person;
 import ugh.dl.Prefs;
+import ugh.exceptions.PreferencesException;
 import ugh.exceptions.UGHException;
+import ugh.exceptions.WriteException;
 import ugh.fileformats.mets.MetsMods;
 
 @PluginImplementation
@@ -67,6 +73,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
     private String currentMetsFile;
 
     private boolean moveFiles = false;
+    private boolean replaceExisting = false;
 
     private Map<String, String> processTitleGeneration = new HashMap<>();
 
@@ -86,6 +93,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
         }
 
         moveFiles = config.getBoolean("moveFiles", false);
+        replaceExisting = config.getBoolean("replaceExistingProcesses", false);
     }
 
     public static void main(String[] args) throws Exception {
@@ -127,9 +135,9 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
 
     @Override
     public Fileformat convertData() throws ImportPluginException {
-
+        Fileformat ff = null;
         try {
-            Fileformat ff = new MetsMods(prefs);
+            ff= new MetsMods(prefs);
             ff.read(currentMetsFile);
 
             DocStruct topstruct = ff.getDigitalDocument().getLogicalDocStruct();
@@ -171,7 +179,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
             log.error(e);
         }
 
-        return null;
+        return ff;
     }
 
     @Override
@@ -213,15 +221,34 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
             }
             processTitleInSource = masterFolder.replace(prefixInSource, "").replace(suffixInSource, "");
             ImportObject io = new ImportObject();
-            generatedFiles.add(io);
+            Fileformat fileFormat = null;
             try {
-                convertData();
+                fileFormat = convertData();
             } catch (ImportPluginException e) {
                 log.error(e);
                 io.setImportReturnValue(ImportReturnValue.InvalidData);
                 io.setErrorMessage(e.getMessage());
             }
+            // check if the process exists
+            if (replaceExisting) {
+                boolean dataReplaced = false;
+                Process existingProcess = ProcessManager.getProcessByExactTitle(processTitleDestination);
+                if (existingProcess != null) {
+                    try {
+                        existingProcess.writeMetadataFile(fileFormat);
+                        dataReplaced = true;
+                    } catch (WriteException | PreferencesException | IOException | InterruptedException | SwapException | DAOException e) {
+                        log.error(e);
+                    }
 
+                    Path sourceRootFolder = Paths.get(currentRecord.getData());
+                    moveImageIntoProcessFolder(existingProcess, sourceRootFolder);
+                }
+                if (dataReplaced) {
+                    // TODO delete mets file, anchor file, image folder
+                    continue;
+                }
+            }
             // copy all files with new folder names
 
             try {
@@ -232,12 +259,62 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
                 io.setErrorMessage(e.getMessage());
             }
             //            io.setImportFileName(processTitleDestination);
+
+            generatedFiles.add(io);
             io.setMetsFilename(getImportFolder() + processTitleDestination + ".xml");
             io.setProcessTitle(processTitleDestination);
 
         }
 
         return generatedFiles;
+    }
+
+    private void moveImageIntoProcessFolder(Process existingProcess, Path sourceRootFolder) {
+        if (StorageProvider.getInstance().isFileExists(sourceRootFolder)) {
+            Path sourceImageFolder = Paths.get(sourceRootFolder.toString(), "images");
+            Path sourceOcrFolder = Paths.get(sourceRootFolder.toString(), "ocr");
+            if (StorageProvider.getInstance().isDirectory(sourceImageFolder)) {
+                List<Path> dataInSourceImageFolder = StorageProvider.getInstance().listFiles(sourceImageFolder.toString());
+
+                for (Path currentData : dataInSourceImageFolder) {
+                    if (Files.isDirectory(currentData)) {
+                        try {
+                            copyFolder(currentData, Paths.get(existingProcess.getImagesDirectory()));
+                        } catch (IOException | InterruptedException | SwapException | DAOException e) {
+                            log.error(e);
+                        }
+                    } else {
+                        try {
+                            copyFile(currentData, Paths.get(existingProcess.getImagesDirectory(), currentData.getFileName().toString()));
+                        } catch (IOException | InterruptedException | SwapException | DAOException e) {
+                            log.error(e);
+                        }
+                    }
+                }
+            }
+
+            // ocr
+            if (Files.exists(sourceOcrFolder)) {
+
+                List<Path> dataInSourceImageFolder = StorageProvider.getInstance().listFiles(sourceOcrFolder.toString());
+
+                for (Path currentData : dataInSourceImageFolder) {
+                    if (Files.isRegularFile(currentData)) {
+                        try {
+                            copyFile(currentData, Paths.get(existingProcess.getOcrDirectory(), currentData.getFileName().toString()));
+                        } catch (IOException | SwapException | DAOException | InterruptedException e) {
+                            log.error(e);
+                        }
+                    } else {
+                        try {
+                            copyFolder(currentData, Paths.get(existingProcess.getOcrDirectory()));
+                        } catch (IOException | SwapException | DAOException | InterruptedException e) {
+                            log.error(e);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void moveSourceData(String source) throws IOException {
@@ -402,7 +479,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
         List<Record> answer = new LinkedList<>();
         String folder = ConfigPlugins.getPluginConfig(this).getString("basedir", "/opt/digiverso/goobi/import/");
         for (String filename : filenames) {
-            if (Files.exists(Paths.get(folder,filename, "meta.xml"))) {
+            if (Files.exists(Paths.get(folder, filename, "meta.xml"))) {
                 Record record = new Record();
                 record.setId(folder + filename);
                 record.setData(folder + filename);
