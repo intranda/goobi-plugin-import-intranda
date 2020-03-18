@@ -19,6 +19,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
+import org.apache.commons.io.FileUtils;
 import org.goobi.beans.Process;
 import org.goobi.production.enums.ImportReturnValue;
 import org.goobi.production.enums.ImportType;
@@ -137,7 +138,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
     public Fileformat convertData() throws ImportPluginException {
         Fileformat ff = null;
         try {
-            ff= new MetsMods(prefs);
+            ff = new MetsMods(prefs);
             ff.read(currentMetsFile);
 
             DocStruct topstruct = ff.getDigitalDocument().getLogicalDocStruct();
@@ -279,13 +280,14 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
                 for (Path currentData : dataInSourceImageFolder) {
                     if (Files.isDirectory(currentData)) {
                         try {
-                            copyFolder(currentData, Paths.get(existingProcess.getImagesDirectory()));
+                            FileUtils.copyDirectory(currentData.toFile(), Paths.get(existingProcess.getImagesDirectory()).toFile());
                         } catch (IOException | InterruptedException | SwapException | DAOException e) {
                             log.error(e);
                         }
                     } else {
                         try {
-                            copyFile(currentData, Paths.get(existingProcess.getImagesDirectory(), currentData.getFileName().toString()));
+                            FileUtils.copyFile(currentData.toFile(),
+                                    Paths.get(existingProcess.getImagesDirectory(), currentData.getFileName().toString()).toFile());
                         } catch (IOException | InterruptedException | SwapException | DAOException e) {
                             log.error(e);
                         }
@@ -295,9 +297,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
 
             // ocr
             if (Files.exists(sourceOcrFolder)) {
-
                 List<Path> dataInSourceImageFolder = StorageProvider.getInstance().listFiles(sourceOcrFolder.toString());
-
                 for (Path currentData : dataInSourceImageFolder) {
                     if (Files.isRegularFile(currentData)) {
                         try {
@@ -307,7 +307,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
                         }
                     } else {
                         try {
-                            copyFolder(currentData, Paths.get(existingProcess.getOcrDirectory()));
+                            FileUtils.copyDirectory(currentData.toFile(), Paths.get(existingProcess.getOcrDirectory()).toFile());
                         } catch (IOException | SwapException | DAOException | InterruptedException e) {
                             log.error(e);
                         }
