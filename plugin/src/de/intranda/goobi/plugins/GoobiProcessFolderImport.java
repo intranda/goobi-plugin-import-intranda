@@ -37,7 +37,6 @@ import de.sub.goobi.forms.MassImportForm;
 import de.sub.goobi.helper.NIOFileUtils;
 import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.UghHelper;
-import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.ImportPluginException;
 import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.persistence.managers.ProcessManager;
@@ -238,7 +237,7 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
                     try {
                         existingProcess.writeMetadataFile(fileFormat);
                         dataReplaced = true;
-                    } catch (WriteException | PreferencesException | IOException | InterruptedException | SwapException | DAOException e) {
+                    } catch (WriteException | PreferencesException | IOException | SwapException e) {
                         log.error(e);
                     }
 
@@ -281,14 +280,14 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
                     if (Files.isDirectory(currentData)) {
                         try {
                             FileUtils.copyDirectory(currentData.toFile(), Paths.get(existingProcess.getImagesDirectory()).toFile());
-                        } catch (IOException | InterruptedException | SwapException | DAOException e) {
+                        } catch (IOException | SwapException e) {
                             log.error(e);
                         }
                     } else {
                         try {
                             FileUtils.copyFile(currentData.toFile(),
                                     Paths.get(existingProcess.getImagesDirectory(), currentData.getFileName().toString()).toFile());
-                        } catch (IOException | InterruptedException | SwapException | DAOException e) {
+                        } catch (IOException | SwapException e) {
                             log.error(e);
                         }
                     }
@@ -302,13 +301,13 @@ public class GoobiProcessFolderImport implements IImportPluginVersion2, IPlugin 
                     if (Files.isRegularFile(currentData)) {
                         try {
                             copyFile(currentData, Paths.get(existingProcess.getOcrDirectory(), currentData.getFileName().toString()));
-                        } catch (IOException | SwapException | DAOException | InterruptedException e) {
+                        } catch (IOException | SwapException e) {
                             log.error(e);
                         }
                     } else {
                         try {
                             FileUtils.copyDirectory(currentData.toFile(), Paths.get(existingProcess.getOcrDirectory()).toFile());
-                        } catch (IOException | SwapException | DAOException | InterruptedException e) {
+                        } catch (IOException | SwapException e) {
                             log.error(e);
                         }
                     }
