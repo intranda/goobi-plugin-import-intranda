@@ -2,9 +2,9 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.goobi.workflow.plugin</groupId>
-    <artifactId>plugin-import-import-intranda</artifactId>
+    <artifactId>plugin-import-intranda</artifactId>
     <version>24.03-SNAPSHOT</version>
   </parent>
-  <artifactId>plugin-import-import-intranda-base</artifactId>
+  <artifactId>plugin-import-intranda-base</artifactId>
   <packaging>jar</packaging>
 </project>
