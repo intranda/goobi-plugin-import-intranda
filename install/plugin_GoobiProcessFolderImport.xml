@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config_plugin>
+
+	<basedir>/opt/digiverso/goobi/import/</basedir>
+	<prefixInDestination>master_</prefixInDestination>
+	<suffixInDestination>_media</suffixInDestination>
+
+	<title>
+		<doctype doctypename="Monograph" processtitle="ATS_CatalogIDDigital" />
+		<doctype doctypename="Map" processtitle="ATS_CatalogIDDigital" />
+		<doctype doctypename="PeriodicalVolume" processtitle="ATS_CatalogIDDigital" />
+		<doctype doctypename="Volume" processtitle="ATS_CatalogIDDigital_CurrentNoSorting" />
+
+		<doctype doctypename="NewspaperVolume" processtitle="ATS_CatalogIDDigital" />
+	</title>
+
+	<moveFiles>true</moveFiles>
+
+    <replaceExistingProcesses>false</replaceExistingProcesses>
+</config_plugin>
