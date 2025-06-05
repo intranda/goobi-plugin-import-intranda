@@ -18,9 +18,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.goobi.beans.Masterpieceproperty;
 import org.goobi.beans.Processproperty;
-import org.goobi.beans.Templateproperty;
 import org.goobi.production.enums.ImportReturnValue;
 import org.goobi.production.enums.ImportType;
 import org.goobi.production.enums.PluginType;
@@ -75,8 +73,6 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
     protected String imagefolder;
     protected String ats;
     protected List<Processproperty> processProperties = new ArrayList<>();
-    protected List<Templateproperty> templateProperties = new ArrayList<>();
-    protected List<Masterpieceproperty> workProperties = new ArrayList<>();
 
     protected String currentTitle;
     protected String docType;
@@ -219,17 +215,17 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                 }
 
                 {
-                    Templateproperty prop = new Templateproperty();
+                    Processproperty prop = new Processproperty();
                     prop.setTitel("Titel");
                     prop.setWert(currentTitle);
-                    templateProperties.add(prop);
+                    processProperties.add(prop);
                 }
                 {
                     if (StringUtils.isNotBlank(volumeNumber)) {
-                        Templateproperty prop = new Templateproperty();
+                        Processproperty prop = new Processproperty();
                         prop.setTitel("Bandnummer");
                         prop.setWert(volumeNumber);
-                        templateProperties.add(prop);
+                        processProperties.add(prop);
                     }
                 }
                 {
@@ -238,10 +234,10 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                     if (mdList != null && mdList.size() > 0) {
                         String analog = mdList.get(0).getValue();
 
-                        Templateproperty prop = new Templateproperty();
+                        Processproperty prop = new Processproperty();
                         prop.setTitel("Identifier");
                         prop.setWert(analog);
-                        templateProperties.add(prop);
+                        processProperties.add(prop);
 
                     }
                 }
@@ -251,19 +247,19 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                         mdList = child.getAllMetadataByType(identifierType);
                         if (mdList != null && mdList.size() > 0) {
                             Metadata identifier = mdList.get(0);
-                            Masterpieceproperty prop = new Masterpieceproperty();
+                            Processproperty prop = new Processproperty();
                             prop.setTitel("Identifier Band");
                             prop.setWert(identifier.getValue());
-                            workProperties.add(prop);
+                            processProperties.add(prop);
                         }
 
                     }
                 }
                 {
-                    Masterpieceproperty prop = new Masterpieceproperty();
+                    Processproperty prop = new Processproperty();
                     prop.setTitel("Artist");
                     prop.setWert(author);
-                    workProperties.add(prop);
+                    processProperties.add(prop);
                 }
                 // {
                 // docType = logicalDS.getType().getName();
@@ -273,16 +269,16 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                 // workProperties.add(prop);
                 // }
                 {
-                    Masterpieceproperty prop = new Masterpieceproperty();
+                    Processproperty prop = new Processproperty();
                     prop.setTitel("ATS");
                     prop.setWert(ats);
-                    workProperties.add(prop);
+                    processProperties.add(prop);
                 }
                 {
-                    Masterpieceproperty prop = new Masterpieceproperty();
+                    Processproperty prop = new Processproperty();
                     prop.setTitel("Identifier");
                     prop.setWert(currentIdentifier);
-                    workProperties.add(prop);
+                    processProperties.add(prop);
                 }
 
                 // {
@@ -317,7 +313,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                 logger.error(e.getMessage(), e);
                 if (logicalDS != null) {
                     throw new ImportPluginException("Metadata fo type " + "singleDigCollection" + " is not allowed for " + logicalDS.getType()
-                    .getName(), e);
+                            .getName(), e);
                 }
 
             }
@@ -371,8 +367,6 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                 form.addProcessToProgressBar();
             }
             processProperties = new ArrayList<>();
-            workProperties = new ArrayList<>();
-            templateProperties = new ArrayList<>();
             this.data = r.getData();
             this.currentCollectionList = r.getCollections();
             this.imagefolder = r.getId();
@@ -398,15 +392,10 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                     io.setImportReturnValue(ImportReturnValue.ExportFinished);
 
                     io.setProcessProperties(processProperties);
-                    io.setTemplateProperties(templateProperties);
-                    io.setWorkProperties(workProperties);
                 } catch (PreferencesException e) {
                     logger.error(e.getMessage(), e);
                     io.setImportReturnValue(ImportReturnValue.InvalidData);
-                } catch (WriteException e) {
-                    logger.error(e.getMessage(), e);
-                    io.setImportReturnValue(ImportReturnValue.WriteError);
-                } catch (ImportPluginException e) {
+                } catch (WriteException | ImportPluginException e) {
                     logger.error(e.getMessage(), e);
                     io.setImportReturnValue(ImportReturnValue.WriteError);
                 }
@@ -491,7 +480,6 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                 rec.setData(line);
                 records.add(rec);
             }
-        } catch (FileNotFoundException e) {
         } catch (IOException e) {
         } finally {
             if (br != null) {
@@ -522,9 +510,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
                 } else {
                     logger.error("Could not parse '" + filename + "'.");
                 }
-            } catch (JDOMException e) {
-                logger.error(e.getMessage(), e);
-            } catch (IOException e) {
+            } catch (JDOMException | IOException e) {
                 logger.error(e.getMessage(), e);
             }
 
@@ -645,7 +631,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
         }
 
         String myAtsTsl = "";
-        if (autor != null && !autor.equals("")) {
+        if (autor != null && !"".equals(autor)) {
             /* autor */
             if (autor.length() > 4) {
                 myAtsTsl = autor.substring(0, 4);
@@ -665,7 +651,7 @@ public class IntrandaGoobiImport implements IImportPlugin, IPlugin {
          * -------------------------------- bei Zeitschriften Tsl berechnen --------------------------------
          */
         // if (gattung.startsWith("ab") || gattung.startsWith("ob")) {
-        if (autor == null || autor.equals("")) {
+        if (autor == null || "".equals(autor)) {
             myAtsTsl = "";
             StringTokenizer tokenizer = new StringTokenizer(myTitle);
             int counter = 1;
